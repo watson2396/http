@@ -1,5 +1,11 @@
 const std = @import("std");
 
+// assumption: only making this for windows for now
+// 1. connect to socket
+// 2. loop over socket
+// 3. read messages from socket
+// 4. send message back through socket?
+
 pub fn main() !void {
     std.debug.print("Hello, World", .{});
 
@@ -15,13 +21,12 @@ pub fn main() !void {
     var client = try server.accept();
     defer .client.stream.close();
 
-    // stream.reader needs a buffer
-    const client_reader = client.stream.reader(.{});
-    // stream.writer needs a buffer
-    const client_writer = client.stream.writer(.{});
+    const client_reader = client.stream.reader(&.{});
+    const client_writer = client.stream.writer(&.{});
 
     while (true) {
-        const msg = client_reader.readUntilDelimiterOrEofAlloc(gpa, '\n', 65536);
+        //const msg = client_reader.readUntilDelimiterOrEofAlloc(gpa, '\n', 65536);
+        const msg = client_reader.net_stream;
         defer gpa.free(msg);
 
         std.log.info("Recieved message: \"{}\"", .{std.zig.fmtEscapes(msg)});
