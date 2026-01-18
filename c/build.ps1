@@ -1,0 +1,1 @@
+zig cc server.c -target x86_64-windows-msvc

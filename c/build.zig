@@ -1,6 +1,3 @@
-
-zig cc server.c -target x86_64-windows-msvc
-
 // const cc = b.addSystemCommand(&.{
 //      "cc",
 //      "-c",
