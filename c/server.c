@@ -37,7 +37,8 @@ int main(int argc, char const* argv[])
 
     // Resolve the local address and port to be used by the server
     iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
-    if (iResult != 0) {
+    if (iResult != 0) 
+    {
         printf("getaddrinfo failed: %d\n", iResult);
         WSACleanup();
         return 1;
@@ -48,7 +49,8 @@ int main(int argc, char const* argv[])
     // Create a SOCKET for the server to listen for client connections
     ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 
-    if (ListenSocket == INVALID_SOCKET) {
+    if (ListenSocket == INVALID_SOCKET) 
+    {
         printf("Error at socket(): %ld\n", WSAGetLastError());
         freeaddrinfo(result);
         WSACleanup();
@@ -57,7 +59,8 @@ int main(int argc, char const* argv[])
 
     // Setup the TCP listening socket
     iResult = bind( ListenSocket, result->ai_addr, (int)result->ai_addrlen);
-    if (iResult == SOCKET_ERROR) {
+    if (iResult == SOCKET_ERROR) 
+    {
         printf("bind failed with error: %d\n", WSAGetLastError());
         freeaddrinfo(result);
         closesocket(ListenSocket);
@@ -68,6 +71,13 @@ int main(int argc, char const* argv[])
     freeaddrinfo(result);
 
     //https://learn.microsoft.com/en-us/windows/win32/winsock/listening-on-a-socket
+    if ( listen( ListenSocket, SOMAXCONN ) == SOCKET_ERROR ) 
+    {
+        printf( "Listen failed with error: %ld\n", WSAGetLastError() );
+        closesocket(ListenSocket);
+        WSACleanup();
+        return 1;
+    }
 
     // wait for incoming request on socket
 
