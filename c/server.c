@@ -2,24 +2,29 @@
 #include <stdio.h>
 #include <string.h>
 
-//#include <windows.h>
 #include <ws2tcpip.h>
-//#include <iphlpapi.h>
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32.lib") //Winsock Library
 #define PORT 6969
 #define DEFAULT_PORT "27015"
+#define DEFAULT_BUFLEN 512
 
-// https://learn.microsoft.com/en-us/windows/win32/winsock/getting-started-with-winsock
-// https://learn.microsoft.com/en-us/windows/win32/winsock/complete-server-code
-// Server
 int main(int argc, char const* argv[])
 {
     printf("Hello, World\n");
+    WSADATA wsaData;
     int iResult;
 
-    printf("initialising Winsock\n");
-    WSADATA wsaData;
+    SOCKET ListenSocket = INVALID_SOCKET;
+    SOCKET ClientSocket = INVALID_SOCKET;
+
+    struct addrinfo *result = NULL;
+    struct addrinfo hints;
+
+    int iSendResult;
+    char recvbuf[DEFAULT_BUFLEN];
+    int recvbuflen = DEFAULT_BUFLEN;
+
     iResult = WSAStartup(MAKEWORD(2, 0), &wsaData);
     if (iResult != 0) 
     {
@@ -27,8 +32,6 @@ int main(int argc, char const* argv[])
         return 1;
     }
 
-    //https://learn.microsoft.com/en-us/windows/win32/winsock/creating-a-socket-for-the-server
-    struct addrinfo *result = NULL, *ptr = NULL, hints;
     ZeroMemory(&hints, sizeof(hints));
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
@@ -44,13 +47,11 @@ int main(int argc, char const* argv[])
         return 1;
     }
 
-    SOCKET ListenSocket = INVALID_SOCKET;
-
     // Create a SOCKET for the server to listen for client connections
     ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
     if (ListenSocket == INVALID_SOCKET) 
     {
-        printf("Error at socket(): %ld\n", WSAGetLastError());
+        printf("Error at socket(): %d\n", WSAGetLastError());
         freeaddrinfo(result);
         WSACleanup();
         return 1;
@@ -69,17 +70,14 @@ int main(int argc, char const* argv[])
 
     freeaddrinfo(result);
 
-    //https://learn.microsoft.com/en-us/windows/win32/winsock/listening-on-a-socket
     if ( listen( ListenSocket, SOMAXCONN ) == SOCKET_ERROR ) 
     {
-        printf( "Listen failed with error: %ld\n", WSAGetLastError() );
+        printf( "Listen failed with error: %d\n", WSAGetLastError() );
         closesocket(ListenSocket);
         WSACleanup();
         return 1;
     }
     
-    SOCKET ClientSocket;
-    // Accept a client socket
     ClientSocket = accept(ListenSocket, NULL, NULL);
     if (ClientSocket == INVALID_SOCKET) {
         printf("accept failed: %d\n", WSAGetLastError());
@@ -90,13 +88,8 @@ int main(int argc, char const* argv[])
 
     closesocket(ListenSocket);
 
-    #define DEFAULT_BUFLEN 512
-
-    char recvbuf[DEFAULT_BUFLEN];
-    int iSendResult;
-    int recvbuflen = DEFAULT_BUFLEN;
-
     // Receive until the peer shuts down the connection
+    printf("start listening to port\n");
     do {
 
         iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);

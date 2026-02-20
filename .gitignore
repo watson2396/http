@@ -1,4 +1,5 @@
 zig-output/
+zig-out/
 .zig-cache/
 *.exe
 *.pdb

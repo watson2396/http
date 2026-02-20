@@ -1,1 +1,1 @@
-zig cc server.c -target x86_64-windows-msvc
+zig cc .\server.c -target x86_64-windows-msvc -o .zig-out\http.exe
