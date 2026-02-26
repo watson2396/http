@@ -8,14 +8,12 @@
 
 # notes along the way
 
-high level overview from Python perspective
-- https://joaoventura.net/blog/2017/python-webserver/
+| Protocol | Port(s) | RFC | Notes |
+|----------|---------|-----|-------|
+| HTTP | 80 | RFC 9110, RFC 9112 | Core HTTP semantics and message syntax |
+| HTTPS | 443 | RFC 2818 | HTTP over TLS |
 
-reference for C way of doing things
-- https://cs.baylor.edu/~donahoo/practical/CSockets/code/TCPEchoClientWS.c
-
-look into C socket/ws2_32 socket functionality
-- https://ziglang.org/documentation/0.15.2/std/#std.os.windows.ws2_32.SOCK
+RFC 9112 - https://www.rfc-editor.org/rfc/rfc9112.html
 
 
 
