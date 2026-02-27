@@ -14,12 +14,6 @@
 
 #define HEADER_BUFLEN 512
 
-typedef struct Message_ {
-    int         buflen;
-    char*       message_buf;
-    CHTbl*      headers;
-} Message;
-
 int match (const void* key1, const void* key2) 
 {
     char* k1 = (char*)key1;
@@ -34,33 +28,41 @@ int match (const void* key1, const void* key2)
     return 0;
 };
 
-int parse_message_headers()
+typedef struct Message_ 
+{
+    int         message_buflen;
+    char*       message_buf;
+    char*       message_body;
+    CHTbl*      message_headers;
+} Message;
+
+int init_message(Message* self, char* recv_buf, int recv_buflen, CHTbl* headers)
+{
+    int ret_result;
+    self->message_buflen = recv_buflen;
+    self->message_headers = headers;
+    self->message_body = NULL;
+    self->message_buf = (char *)malloc(recv_buflen * sizeof(char));
+    
+    if (strncpy(self->message_buf, recv_buf, self->message_buflen)) return 1;
+    if(chtbl_init(self->message_headers, 10, hashpjw, match, chtbl_destroy)) return 1;
+    return 0;
+};
+
+// parse message
+// HTTP-message   = start-line CRLF
+//                 *( field-line CRLF )
+//                 CRLF
+//                 [ message-body ]
+//
+//
+// start-line     = request-line / status-line
+int parse_message_headers(Message* message, )
 {
     int ret_result;
     int headers;
-    CHTbl headers;
+    char c;
 
-    // list to hold headers
-    ret_result = chtbl_init(headers, 10, hashpjw, match, chtbl_destroy);
-
-
-    // parse message
-    // HTTP-message   = start-line CRLF
-    //                 *( field-line CRLF )
-    //                 CRLF
-    //                 [ message-body ]
-    //
-    //
-    // start-line     = request-line / status-line
-
-    // 2.2. Message Parsing
-    // The normal procedure for parsing an HTTP message is to read the start-line into a structure, 
-    // read each header field line into a hash table by field name until the empty line, 
-    // and then use the parsed data to determine if a message body is expected. 
-    // If a message body has been indicated, then it is read as a stream until an amount of octets 
-    // equal to the message body length is read or the connection is closed
-
-    
     // check for empty or new line only strings
     while ((c = recvBuf[message_index]) != '\0')
     {
@@ -95,15 +97,24 @@ int parse_message_headers()
 int parse_message_body();
 
 
-int parse_message(char recvBuf[], int recvBufLen, int bytesRecv, char outBuf[], int outBufLen) 
+// 2.2. Message Parsing
+// The normal procedure for parsing an HTTP message is to read the start-line into a structure, 
+// read each header field line into a hash table by field name until the empty line, 
+// and then use the parsed data to determine if a message body is expected. 
+// If a message body has been indicated, then it is read as a stream until an amount of octets 
+// equal to the message body length is read or the connection is closed
+int parse_message(char* recvBuf, int recvBufLen, int bytesRecv) 
 {
     int message_index = 0;
     int message_len;
-    char c;
-
+    Message message;
+    CHTbl message_headers;
+    init_message(&message, recvBuf, recvBufLen, &message_headers);
 
     printf("Bytes received: %d\n", bytesRecv);
     printf("Message: %s\n", recvBuf);
+
+    parse_message_headers();
 
     outBuf[message_index] = '\0';
 
@@ -135,6 +146,7 @@ int recv_messages(SOCKET* ClientSocket)
                 WSACleanup();
                 return 1;
             }
+            parse_message(&recvBuf, recvBufLen, retResult);
             printf("Bytes sent: %d\n", sendResult);
         } 
         else if (retResult == 0) 
