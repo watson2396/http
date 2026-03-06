@@ -4,16 +4,15 @@
 #include "chtbl.h"
 #include "list.h"
 
+#define HASHSIZE 101
 
-int chtbl_init(
-    CHTbl *htbl, 
-    int buckets, 
-    int (*hash)(const void *key),
-    int (*match)(const void *key1, const void *key2),
-    void (*destroy)(void *data)
-) {
+CHTbl* chtbl_create(int buckets, int(*match)(const void* key1, const void* key2))
+{
 
   int i;
+
+  // create htbl via malloc so control can be passed back to caller
+  CHTbl* htbl = (CHTbl*)malloc(sizeof(CHTbl));
 
   //  Allocate space for the hash table
   if ((htbl->table = (List *)malloc(buckets * sizeof(List))) == NULL)
@@ -23,17 +22,19 @@ int chtbl_init(
   htbl->buckets = buckets;
 
   for (i = 0; i < htbl->buckets; i++)
-    list_init(&htbl->table[i], destroy);
+  {
+    list_init(&htbl->table[i], list_destroy);
+  }
 
   //  Encapsulate the functions
   htbl->hash = hash;
   htbl->match = match;
-  htbl->destroy = destroy;
+  htbl->destroy = chtbl_destroy;
 
   //  Initialize the number of elements in the table
   htbl->size = 0;
 
-  return 0;
+  return htbl;
 }
 
 void chtbl_destroy(CHTbl *htbl) {
@@ -135,6 +136,21 @@ int chtbl_lookup(const CHTbl *htbl, void **data) {
   return -1;
 }
 
+// from "The C Programming Language" book
+// ch 6, section 6.6
+unsigned int hash(char* s) 
+{
+    unsigned hashval;
+
+    for (hashval = 0; *s != '\0'; s++)
+    {
+        hashval = *s + 31 * hashval;
+    }
+
+    return hashval % HASHSIZE;
+
+};
+
 unsigned int hashpjw(const void* key)
 {
 
@@ -171,4 +187,4 @@ unsigned int hashpjw(const void* key)
     //  In practice, replace PRIME_TBLSIZ with the actual table size
     return val % PRIME_TBLSIZ;
 
-}
+};

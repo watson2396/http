@@ -3,11 +3,10 @@
 
 #include "list.h"
 
-void list_init(List* list, void (*destroy)(void* data)) 
+void list_init(List* list) 
 {
-
     list->size = 0;
-    list->destroy = destroy;
+    list->destroy = list_destroy;
     list->head = NULL;
     list->tail = NULL;
 

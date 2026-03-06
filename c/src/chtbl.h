@@ -7,21 +7,16 @@
 
 //  Define a structure for chained hash tables
 typedef struct CHTbl_ {
-
-    int                buckets;
-
-    int                (*hash)(const void* key);
-    int                (*match)(const void* key1, const void* key2);
-    void               (*destroy)(void* data);
-
-    int                size;
-    List* table;
-
+    int         buckets;
+    int         size;
+    int         (*hash)(const void* key);
+    int         (*match)(const void* key1, const void* key2);
+    void        (*destroy)(void* data);
+    List*       table;
 } CHTbl;
 
 //  --------------------------- Public Interface ---------------------------
-int chtbl_init(CHTbl* htbl, int buckets, int (*hash)(const void* key), int
-(*match)(const void* key1, const void* key2), void (*destroy)(void* data));
+CHTbl* chtbl_create(int buckets, int(*match)(const void* key1, const void* key2));
 
 void chtbl_destroy(CHTbl* htbl);
 
