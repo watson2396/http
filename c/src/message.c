@@ -36,7 +36,8 @@ int message_parse_headers(Message* message)
     int ret_result;
     int headers;
     int i = 0;
-    char curr, prev;
+    int pos = 0;
+    int end_of_header = 0;
 
     char header_name_buf[50];
     int header_name_buf_idx;
@@ -44,48 +45,43 @@ int message_parse_headers(Message* message)
     char header_value_buf[50];
     int header_value_buf_idx;
 
-    // check for empty or new line only strings
-    while ((curr = message->message_buf[i]) != '\r' && !(end_of_headers(message->message_buf, i))) 
+    // 1. check current buf ahead to next header name
+    //      find indexes for start and end 
+    //      copy current buf contents to holding buf
+    // 2. find header value
+    //      find indexes for start and end 
+    //      copy current buf contents to holding buf
+    // 3. pass holding bufs to htbl to be set
+    // 4. reset holding bufs
+
+    // the length of the recieved buffer is known
+
+    // find the length to header portion first
+    
+    while (!end_of_header)
     {
-
-        if (curr != '\r' && !(end_of_header(message->message_buf, header_name_buf_idx)))
-        {
-
-            header_name_buf[header_name_buf_idx] = curr;
-        } else 
-        {
-            header_name_buf[header_name_buf_idx] = curr;
-            header_name_buf
-        }
+        message->message_buf[i]
 
         i++;
     }
+
+
+
 };
 
 int end_of_header(char* arr, int i) 
 {
     int j;
-    char header_end[4] = "\r\n\r\n";
+    char header_end[2] = "\r\n";
     for (j = 0; j < i; j++)
     {
         if (header_end[j] != arr[i]) return 1;
+        i++;
     }
 
     return 0;
 };
 
-// end of headers has "\r\n\r\n" then body
-int end_of_headers(char* arr, int i) 
-{
-    int j;
-    char header_end[4] = "\r\n\r\n";
-    for (j = 0; j < i; j++)
-    {
-        if (header_end[j] != arr[i]) return 1;
-    }
-
-    return 0;
-};
 
 int message_parse_body(Message* message)
 {
