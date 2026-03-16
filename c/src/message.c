@@ -31,13 +31,45 @@ Message* message_create(char* recv_buf, int recv_buflen)
 //      field-value    = CRLF + token + CRLF
 //      token          = 1*<any CHAR except CTLs or separators>
 
+int end_of_header(Message* message, int i) 
+{
+    int j;
+    char header_end[2] = "\r\n";
+    for (j = 0; j < i; j++)
+    {
+        if (header_end[j] != message->message_buf[i]) return 1;
+        i++;
+    }
+
+    return 0;
+};
+
+int message_parse_header_values(Message* message, char* header_name_buf, char* header_value_buf, int header_start, int header_end)
+{
+    // you have <header-name>":"<header-value>
+    // parse that so it can be added to the hash table
+    int i, past_sep;
+    char c;
+
+    do
+    {
+        c = message->message_buf[header_sep];
+        // you have position of header separator
+        if (c == ':') 
+        {
+            past_sep = 1;
+        };
+
+    } while (1);
+
+
+}
+
 int message_parse_headers(Message* message)
 {
     int ret_result;
-    int headers;
-    int i = 0;
-    int pos = 0;
-    int end_of_header = 0;
+    int header_count;
+    int header_start, header_end, pos = 0;
 
     char header_name_buf[50];
     int header_name_buf_idx;
@@ -57,31 +89,19 @@ int message_parse_headers(Message* message)
     // the length of the recieved buffer is known
 
     // find the length to header portion first
-    
-    while (!end_of_header)
+    do 
     {
-        message->message_buf[i]
+        while (!end_of_header(&message, pos))
+        {
+            pos++;
+        }
 
-        i++;
-    }
+        header_start = header_end;
+        header_end = pos;
 
-
+    } while (!end_of_header(&message, pos));
 
 };
-
-int end_of_header(char* arr, int i) 
-{
-    int j;
-    char header_end[2] = "\r\n";
-    for (j = 0; j < i; j++)
-    {
-        if (header_end[j] != arr[i]) return 1;
-        i++;
-    }
-
-    return 0;
-};
-
 
 int message_parse_body(Message* message)
 {
