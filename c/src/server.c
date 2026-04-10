@@ -37,8 +37,8 @@ int recv_messages(SOCKET* ClientSocket)
                 return 1;
             }
 
-            Message* message = message_create(&recvBuf, retResult);
-            message_parse(&message);
+            Message* message = message_create();
+            if (message_parse(&message, &recvBuf, retResult) != 0) {printf("shit went sideways somewhere; skipping message"); continue;};
 
             printf("Bytes sent: %d\n", sendResult);
         } 
