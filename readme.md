@@ -15,5 +15,5 @@
 
 RFC 9112 - https://www.rfc-editor.org/rfc/rfc9112.html
 
-
-
+https://www.linuxhowtos.org/C_C++/socket.htm
+https://www.linuxhowtos.org/data/6/server.c
